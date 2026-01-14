@@ -28,7 +28,7 @@ jobs:
 
       - name: docker build
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}:${{ github.ref_name }} .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}:dev .
 
       - name: login docker hub
         uses: docker/login-action@v3
@@ -38,7 +38,7 @@ jobs:
 
       - name: docker push
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}:${{ github.ref_name }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}:dev
 
   deploy:
     needs: build
@@ -53,8 +53,9 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             CONTAINER=asic-guanipa-web \
-            TAG=${{ github.ref_name }} \
+            TAG=dev \
             IMAGE=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }} \
             /app/create-container \
             --restart unless-stopped \
-            --network asic-guanipa-network
+            --network asic-guanipa-network \
+            -e PORT=4000
