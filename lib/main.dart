@@ -1,14 +1,17 @@
-import 'login_page.dart';
 import 'package:flutter/material.dart';
+import 'screen/login_page.dart';
 
-void main()  {
+void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    const String version = String.fromEnvironment("VERSION", defaultValue: "0.0.1-alpha");
+    const String version = String.fromEnvironment(
+      "VERSION",
+      defaultValue: "0.0.1-alpha",
+    );
 
     return MaterialApp(
       title: "Login App - $version",
