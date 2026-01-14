@@ -34,9 +34,9 @@ jobs:
 
       - name: Upload APK to server via SCP with password
         env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+          SERVER_HOST: ${{ secrets.SSH_HOSTNAME }}
+          SERVER_USER: ${{ secrets.SSH_USERNAME }}
+          SERVER_PASSWORD: ${{ secrets.SSH_PASSWORD }}
         run: |
           sshpass -p "$SERVER_PASSWORD" scp -o StrictHostKeyChecking=no build/app/outputs/flutter-apk/app-release.apk $SERVER_USER@$SERVER_HOST:~/build/apk/app-release.apk
           sshpass -p "$SERVER_PASSWORD" scp -o StrictHostKeyChecking=no build/app/outputs/flutter-apk/app-release.apk $SERVER_USER@$SERVER_HOST:~/build/apk/app-release-${{ github.ref_name }}.apk
