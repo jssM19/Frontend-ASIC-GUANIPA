@@ -16,14 +16,13 @@ jobs:
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
+        with:
+          channel: stable
       - name: Set enviroment .env
         run: |
           :> .env
           echo "VERSION=${{ github.ref_name }}" >> .env
           echo "API_URL=${{ secrets.API_URL }}" >> .env
-        with:
-          channel: stable
-
       - name: Build Flutter Web
         run: flutter build web --release
 
