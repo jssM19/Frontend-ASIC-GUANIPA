@@ -6,4 +6,4 @@ COPY ./build/web /app
 
 ENV PORT=${PORT:-8000}
 
-CMD ["python", "-m", "http.server", "$PORT", "-b", "0.0.0.0"]
+CMD ["python", "-m", "http.server", "4000", "-b", "0.0.0.0"]
