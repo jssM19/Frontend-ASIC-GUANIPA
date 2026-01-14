@@ -23,7 +23,6 @@ jobs:
           :> .env
           echo "VERSION=${{ github.ref_name }}" >> .env
           echo "API_URL=\"${{ secrets.API_URL }}\"" >> .env
-          ls && cat .env
       - name: Install Dependencies
         run: |
           flutter pub get
