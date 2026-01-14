@@ -10,10 +10,10 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    version = dotenv.env['VERSION'] ?? '1.0.0';
+    String version = dotenv.env['VERSION'] ?? '1.0.0';
 
     return MaterialApp(
-      title: 'Login App - $version',
+      title: "Login App - $version",
       theme: ThemeData(primarySwatch: Colors.blue),
       home: LoginPage(), // Tu pantalla de login
       debugShowCheckedModeBanner: false,
