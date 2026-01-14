@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      FLUTTER_ENV: "${{ secrets.FLUTTER_ENV }}"
+      FLUTTER_ENV: production
       API_URL: "${{ secrets.API_URL }}"
     steps:
       - uses: actions/checkout@v3
