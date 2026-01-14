@@ -1,5 +1,9 @@
-import 'package:asis_guanipa_frontend/forgot_password_screen.dart';
+import 'package:asis_guanipa_frontend/screen/forgot_password_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../../response/login_response.dart';
+import '../../services/api_service.dart';
+import '../screen/home_screen.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,44 +23,73 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
 
   // Variable para mostrar loading
+  final ApiService _apiService = ApiService();
+
   bool _isLoading = false;
+
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    LoginResponse? response = null;
+
+    response = await _apiService.login(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    );
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (!response.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response.message), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    // Login exitoso
+    print('Token: ${response.data?.token}');
+    print('Usuario: ${response.data?.user.email}');
+
+    // Guardar token y datos de usuario
+    _saveUserData(response);
+
+    // Navegar a la pantalla principal
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomeScreen()),
+    );
+
+    // Mostrar mensaje de éxito
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Inicio de sesión exitoso'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _saveUserData(LoginResponse response) {
+    // Aquí guardas el token y datos del usuario
+    // Puedes usar SharedPreferences o un gestor de estado
+    // Ejemplo con shared_preferences:
+    // final prefs = await SharedPreferences.getInstance();
+    // prefs.setString('token', response.data.token);
+    // prefs.setString('username', response.data.user.username);
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
-  }
-
-  // Función para simular el inicio de sesión
-  Future<void> _login() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-
-      // Simular una llamada a API
-      await Future.delayed(Duration(seconds: 2));
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Aquí iría la lógica real de autenticación
-      print('Email: ${_emailController.text}');
-      print('Password: ${_passwordController.text}');
-
-      // Navegar a la pantalla principal después del login exitoso
-      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
-
-      // Mostrar mensaje de éxito
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Inicio de sesión exitoso'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    }
   }
 
   @override
@@ -168,7 +201,9 @@ class _LoginPageState extends State<LoginPage> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : _login,
+                      onPressed: () {
+                        _isLoading ? null : _login();
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         shape: RoundedRectangleBorder(
