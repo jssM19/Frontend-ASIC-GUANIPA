@@ -5,5 +5,6 @@ WORKDIR /app
 COPY ./build/web /app
 
 ENV PORT=${PORT:-8000}
+ENV VERSION=${VERSION:-latest}
 
 CMD ["python", "-m", "http.server", "4000", "-b", "0.0.0.0"]
