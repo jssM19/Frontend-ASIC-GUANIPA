@@ -4,4 +4,6 @@ WORKDIR /app
 
 COPY ./build/web /app
 
-CMD ["python", "-m", "http.server", "${PORT:-8000}"]
+ENV PORT=${PORT:-8000}
+
+CMD ["python", "-m", "http.server", "${PORT}"]
