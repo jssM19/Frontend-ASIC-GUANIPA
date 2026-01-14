@@ -18,16 +18,15 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - name: Set enviroment .env
-        run: |
-          :> .env
-          echo "VERSION=${{ github.ref_name }}" >> .env
-          echo "API_URL=\"${{ secrets.API_URL }}\"" >> .env
       - name: Install Dependencies
         run: |
           flutter pub get
       - name: Build Flutter Web
-        run: flutter build web --release
+        run: |
+          flutter build web \
+            --release \
+            --dart-define=API_URL=${{ secrets.API_URL }} \
+            --dart-define=VERSION=${{ secrets.VERSION }}
       - name: docker build
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}:${{ github.ref_name }} .
