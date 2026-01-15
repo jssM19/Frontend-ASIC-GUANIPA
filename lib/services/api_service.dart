@@ -9,6 +9,91 @@ class ApiService {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   };
+  // Enviar enlace de recuperación de contraseña
+  Future<Map<String, dynamic>> sendPasswordResetLink(String email) async {
+    http.Response response;
+
+    try {
+      response = await http.post(
+        Uri.parse('$baseUrl/auth/forgot-password'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'email': email}),
+      );
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error de conexión, intente nuevamente',
+      };
+    }
+
+    if (response.statusCode != 200) {
+      return {
+        'success': false,
+        'message':
+            'Error al enviar el enlace de recuperación, si el problema persiste contacte al administrador',
+      };
+    }
+
+    return {'success': true, 'message': 'Enlace enviado correctamente'};
+  }
+
+  // Restablecer contraseña con token
+  Future<Map<String, dynamic>> resetPassword({
+    required String token,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/reset-password'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'token': token,
+          'password': password,
+          'password_confirmation': confirmPassword,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return {
+          'success': true,
+          'message': 'Contraseña actualizada correctamente',
+          'token': data['token'], // Si tu API devuelve un token
+        };
+      } else {
+        return {
+          'success': false,
+          'message':
+              json.decode(response.body)['message'] ??
+              'Error al restablecer contraseña',
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Error de conexión: $e'};
+    }
+  }
+
+  // Verificar token de recuperación
+  Future<Map<String, dynamic>> verifyResetToken(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/auth/verify-reset-token/$token'),
+      );
+
+      if (response.statusCode == 200) {
+        return {'success': true, 'valid': true};
+      } else {
+        return {
+          'success': false,
+          'valid': false,
+          'message': 'Token inválido o expirado',
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'valid': false, 'message': 'Error de conexión'};
+    }
+  }
 
   Future<LoginResponse> login(String email, String password) async {
     http.Response? response = null;
