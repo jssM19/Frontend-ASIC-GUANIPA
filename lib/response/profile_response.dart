@@ -1,3 +1,5 @@
+import 'package:asis_guanipa_frontend/response/user_response.dart';
+
 class ProfileResponse {
   final bool success;
   final ProfileData? data;
@@ -13,31 +15,17 @@ class ProfileResponse {
 }
 
 class ProfileData {
-  final User user;
-  final String token;
+  final int? id;
+  final String? username;
+  final String? email;
 
-  ProfileData({required this.user, required this.token});
+  ProfileData({required this.id, this.username, required this.email});
 
   factory ProfileData.fromJson(Map<String, dynamic> json) {
     return ProfileData(
-      user: User.fromJson(json['user'] ?? {}),
-      token: json['token'] ?? '',
-    );
-  }
-}
-
-class User {
-  final int id;
-  final String username;
-  final String email;
-
-  User({required this.id, required this.username, required this.email});
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'] ?? 0,
-      username: json['username'] ?? '',
-      email: json['email'] ?? '',
+      id: json['id'],
+      email: json['email'],
+      username: json['username'],
     );
   }
 }

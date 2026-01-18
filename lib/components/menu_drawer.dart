@@ -59,14 +59,14 @@ class MenuDrawerDesign extends StatelessWidget {
         ),
         SizedBox(height: 10),
         Text(
-          currentUser.user.username,
+          currentUser.username ?? "",
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
-        Text(currentUser.user.email, style: TextStyle(color: Colors.white70)),
+        Text(currentUser.email ?? "", style: TextStyle(color: Colors.white70)),
       ],
     );
   }
