@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './../services/api_service.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   @override
@@ -9,6 +10,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   bool _isLoading = false;
+  // Variable para mostrar loading
+  final ApiService _apiService = ApiService();
 
   @override
   void dispose() {
@@ -16,28 +19,33 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
+  Future<void> _submitForgotPassword() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
-      // Aquí iría tu lógica para enviar el correo de recuperación
-      await Future.delayed(Duration(seconds: 2)); // Simulación
+    setState(() => _isLoading = true);
+    final response = await _apiService.sendPasswordResetLink(
+      _emailController.text.trim(),
+    );
+    setState(() => _isLoading = false);
 
-      setState(() => _isLoading = false);
-
-      // Mostrar mensaje de éxito
+    if (!response['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Correo de recuperación enviado'),
-          backgroundColor: Colors.green,
+          content: Text(response['message']),
+          backgroundColor: Colors.red,
         ),
       );
-
-      // Regresar al login después de unos segundos
-      Future.delayed(Duration(seconds: 2), () {
-        Navigator.pop(context);
-      });
+      return;
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(response['message']),
+        backgroundColor: Colors.green,
+      ),
+    );
   }
 
   @override
@@ -94,7 +102,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _submitForm,
+                  onPressed: _isLoading ? null : _submitForgotPassword,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
@@ -104,16 +112,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   child: _isLoading
                       ? CircularProgressIndicator(color: Colors.white)
                       : Text('Enviar Enlace', style: TextStyle(fontSize: 16)),
-                ),
-              ),
-              SizedBox(height: 20),
-              Center(
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    'Volver al inicio de sesión',
-                    style: TextStyle(color: Colors.blue),
-                  ),
                 ),
               ),
             ],
