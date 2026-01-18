@@ -7,7 +7,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: menuDrawer(),
+      drawer: MenuDrawer(),
       appBar: AppBar(
         title: Text('Home Screen', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blue,

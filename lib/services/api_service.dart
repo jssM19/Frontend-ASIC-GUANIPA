@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'package:asis_guanipa_frontend/storage/jwt_token.dart';
 import 'package:http/http.dart' as http;
 import '../response/login_response.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../response/profile_response.dart';
 
 class ApiService {
   static const String baseUrl =
@@ -9,6 +12,43 @@ class ApiService {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   };
+
+  // Obtnener el token de JWT
+  Future<ProfileResponse> currentProfile() async {
+    final token = await getToken();
+    http.Response response;
+
+    try {
+      response = await http.get(
+        Uri.parse('$baseUrl/auth/profile'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+    } catch (e) {
+      return ProfileResponse.fromJson({
+        'success': false,
+        'message': 'Error de conexión, intente nuevamente',
+        'data': null,
+      });
+    }
+
+    print(response.body);
+    print(response.statusCode);
+    print(token);
+
+    if (response.statusCode == 401) {
+      return ProfileResponse.fromJson({
+        'success': false,
+        'message': 'Token inválido o expirado',
+      });
+    }
+
+    final Map<String, dynamic> responseData = json.decode(response.body);
+    return ProfileResponse.fromJson(responseData);
+  }
+
   // Enviar enlace de recuperación de contraseña
   Future<Map<String, dynamic>> sendPasswordResetLink(String email) async {
     http.Response response;

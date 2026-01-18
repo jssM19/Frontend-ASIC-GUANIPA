@@ -1,9 +1,9 @@
 import 'package:asis_guanipa_frontend/screen/forgot_password_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import '../../response/login_response.dart';
 import '../../services/api_service.dart';
 import '../screen/home_screen.dart';
+import '../storage/jwt_token.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -55,11 +55,23 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     // Login exitoso
-    print('Token: ${response.data?.token}');
-    print('Usuario: ${response.data?.user.email}');
 
     // Guardar token y datos de usuario
     _saveUserData(response);
+
+    final responseProfile = await _apiService.currentProfile();
+    if (!responseProfile.success) {
+      deleteToken();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Ocurrio un error al obtener los datos de tu perfil, por favor contactar al administrador',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     // Navegar a la pantalla principal
     Navigator.pushReplacement(
@@ -77,12 +89,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _saveUserData(LoginResponse response) {
-    // Aquí guardas el token y datos del usuario
-    // Puedes usar SharedPreferences o un gestor de estado
-    // Ejemplo con shared_preferences:
-    // final prefs = await SharedPreferences.getInstance();
-    // prefs.setString('token', response.data.token);
-    // prefs.setString('username', response.data.user.username);
+    saveToken(response.data!.token);
   }
 
   @override

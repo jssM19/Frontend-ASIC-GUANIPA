@@ -1,31 +1,25 @@
-class LoginResponse {
+class ProfileResponse {
   final bool success;
-  final String message;
-  final LoginData? data;
+  final ProfileData? data;
 
-  LoginResponse({
-    required this.success,
-    required this.message,
-    required this.data,
-  });
+  ProfileResponse({required this.success, required this.data});
 
-  factory LoginResponse.fromJson(Map<String, dynamic> json) {
-    return LoginResponse(
+  factory ProfileResponse.fromJson(Map<String, dynamic> json) {
+    return ProfileResponse(
       success: json['success'] ?? false,
-      message: json['message'] ?? '',
-      data: json["data"] != null ? LoginData.fromJson(json['data']) : null,
+      data: json["data"] != null ? ProfileData.fromJson(json['data']) : null,
     );
   }
 }
 
-class LoginData {
+class ProfileData {
   final User user;
   final String token;
 
-  LoginData({required this.user, required this.token});
+  ProfileData({required this.user, required this.token});
 
-  factory LoginData.fromJson(Map<String, dynamic> json) {
-    return LoginData(
+  factory ProfileData.fromJson(Map<String, dynamic> json) {
+    return ProfileData(
       user: User.fromJson(json['user'] ?? {}),
       token: json['token'] ?? '',
     );
