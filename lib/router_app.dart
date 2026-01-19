@@ -5,8 +5,10 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:asis_guanipa_frontend/screen/home_screen.dart';
 import 'package:asis_guanipa_frontend/providers/auth_providers.dart';
+import 'package:flutter/material.dart';
+import "package:asis_guanipa_frontend/screen/loading_screen.dart";
 
-final Set<String> routesWithoutSignin = <String>{"/signin", "/reset_password"};
+final Set<String> routesWithoutSignin = <String>{"/signin", "/reset-password"};
 
 String normalizeIncomingUri(Uri u) {
   if (!u.hasScheme) {
@@ -32,6 +34,7 @@ String normalizeIncomingUri(Uri u) {
   ).toString();
 }
 
+// OPCIÓN ALTERNATIVA: Usar un refresh listener para recargar el router
 final router = GoRouter(
   routes: [
     GoRoute(path: "/", builder: (context, state) => const HomeScreen()),
@@ -40,17 +43,31 @@ final router = GoRouter(
       path: "/reset-password",
       builder: (context, state) => const ResetPasswordScreen(),
     ),
+    // Agregar ruta de carga temporal
+    GoRoute(
+      path: "/loading",
+      builder: (context, state) => const MinimalLoadingScreen(),
+    ),
   ],
   redirect: (context, state) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final String path = normalizeIncomingUri(state.uri);
+    final authProvider = Provider.of<AuthProvider>(context, listen: true);
 
-    if (!authProvider.hasSession() && !routesWithoutSignin.contains(path)) {
-      return '/signin';
+    // Si aún está cargando, ir a pantalla de carga (excepto para rutas sin sesión)
+    if (authProvider.isLoading()) {
+      return '/loading';
+    }
+
+    if (!authProvider.isLoading() && path == "/loading") {
+      return "/";
     }
 
     if (authProvider.hasSession() && routesWithoutSignin.contains(path)) {
       return "/";
+    }
+
+    if (!authProvider.hasSession() && !routesWithoutSignin.contains(path)) {
+      return '/signin';
     }
 
     return null;
