@@ -1,9 +1,10 @@
-import 'package:asis_guanipa_frontend/screen/forgot_password_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../response/login_response.dart';
-import '../../services/api_service.dart';
-import '../screen/home_screen.dart';
-import '../storage/jwt_token.dart';
+
+import 'package:asis_guanipa_frontend/providers/auth_providers.dart';
+import 'package:asis_guanipa_frontend/screen/forgot_password_screen.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -22,12 +23,9 @@ class _LoginPageState extends State<LoginPage> {
   // Variable para mostrar/ocultar contraseña
   bool _obscurePassword = true;
 
-  // Variable para mostrar loading
-  final ApiService _apiService = ApiService();
-
   bool _isLoading = false;
 
-  Future<void> _login() async {
+  Future<void> _login(BuildContext context) async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -36,11 +34,11 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    LoginResponse? response = null;
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    response = await _apiService.login(
-      _emailController.text.trim(),
-      _passwordController.text.trim(),
+    LoginResponse response = await authProvider.signIn(
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
     );
 
     setState(() {
@@ -54,31 +52,6 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    // Login exitoso
-
-    // Guardar token y datos de usuario
-    _saveUserData(response);
-
-    final responseProfile = await _apiService.currentProfile();
-    if (!responseProfile.success) {
-      deleteToken();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Ocurrio un error al obtener los datos de tu perfil, por favor contactar al administrador',
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    // Navegar a la pantalla principal
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => HomeScreen()),
-    );
-
     // Mostrar mensaje de éxito
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -86,10 +59,8 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: Colors.green,
       ),
     );
-  }
 
-  void _saveUserData(LoginResponse response) {
-    saveToken(response.data!.token);
+    GoRouter.of(context).go('/');
   }
 
   @override
@@ -209,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        _isLoading ? null : _login();
+                        _isLoading ? null : _login(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,

@@ -1,49 +1,15 @@
-import 'package:asis_guanipa_frontend/services/api_service.dart';
-import 'package:asis_guanipa_frontend/storage/jwt_token.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:asis_guanipa_frontend/storage/jwt_token.dart';
 import "package:asis_guanipa_frontend/screen/login_page.dart";
-import 'package:asis_guanipa_frontend/response/profile_response.dart';
+import 'package:asis_guanipa_frontend/providers/auth_providers.dart';
 
-class MenuDrawer extends StatefulWidget {
+class MenuDrawer extends StatelessWidget {
   const MenuDrawer({super.key});
 
-  @override
-  _MenuDrawer createState() => _MenuDrawer();
-}
-
-class _MenuDrawer extends State<MenuDrawer> {
-  Future? futureProfile;
-  ProfileData? currentUser;
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      futureProfile = _requestDataProfile();
-    });
-  }
-
-  Future<void> _requestDataProfile() async {
-    final apiService = ApiService();
-    final response = await apiService.currentProfile();
-    setState(() {
-      currentUser = response.data;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MenuDrawerDesign(currentUser: currentUser);
-  }
-}
-
-class MenuDrawerDesign extends StatelessWidget {
-  final ProfileData? currentUser;
-
-  const MenuDrawerDesign({super.key, required this.currentUser});
-
-  Widget _circleProfile() {
-    final currentUser = this.currentUser;
+  Widget _circleProfile(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final currentUser = authProvider.getCurrentUser();
 
     if (currentUser == null) {
       return CircularProgressIndicator();
@@ -80,7 +46,7 @@ class MenuDrawerDesign extends StatelessWidget {
           // Header del drawer
           DrawerHeader(
             decoration: BoxDecoration(color: Colors.blue),
-            child: _circleProfile(),
+            child: _circleProfile(context),
           ),
 
           // Opciones del menú
