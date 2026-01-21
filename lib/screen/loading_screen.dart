@@ -1,7 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
-class MinimalLoadingScreen extends StatelessWidget {
-  const MinimalLoadingScreen({Key? key}) : super(key: key);
+import 'package:asis_guanipa_frontend/providers/auth_providers.dart';
+
+class MinimalLoadingScreen extends StatefulWidget {
+  const MinimalLoadingScreen({super.key});
+  @override
+  State<MinimalLoadingScreen> createState() => _MinimalLoadingScreenState();
+}
+
+class _MinimalLoadingScreenState extends State<MinimalLoadingScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Esperar a que el widget esté completamente construido
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAuthentication();
+    });
+  }
+
+  void _checkAuthentication() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    await authProvider.loadData();
+
+    if (!mounted) {
+      return;
+    }
+
+    if (authProvider.hasSession()) {
+      GoRouter.of(context).push("/");
+      return;
+    }
+
+    GoRouter.of(context).push("/signin");
+  }
 
   @override
   Widget build(BuildContext context) {

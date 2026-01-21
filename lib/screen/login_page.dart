@@ -59,6 +59,8 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: Colors.green,
       ),
     );
+
+    GoRouter.of(context).push("/");
   }
 
   @override

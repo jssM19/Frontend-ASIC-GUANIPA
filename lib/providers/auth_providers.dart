@@ -6,16 +6,11 @@ import 'package:asis_guanipa_frontend/response/profile_response.dart';
 
 class AuthProvider extends ChangeNotifier {
   String? _token;
-  bool? _isLoading;
+  bool _isLoading = true;
   ProfileData? _currentUser;
 
-  AuthProvider() {
-    loadData();
-    _isLoading = true;
-  }
-
   bool isLoading() {
-    return _isLoading ?? false;
+    return _isLoading;
   }
 
   String? getToken() {
@@ -83,7 +78,7 @@ class AuthProvider extends ChangeNotifier {
       );
     }
 
-    Jwt.saveToken(token);
+    await Jwt.saveToken(token);
     _token = token;
     _currentUser = profileResponse.data;
     notifyListeners();

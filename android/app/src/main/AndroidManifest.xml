@@ -28,11 +28,12 @@
             </intent-filter>
 
             <!-- Deep Link para reset-password -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="dashboard.asic-guanipa.online" />
+            <intent-filter android:autoVerify="true">
+              <action android:name="android.intent.action.VIEW" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <category android:name="android.intent.category.BROWSABLE" />
+              <data android:scheme="http" android:host="dashboard.asic-guanipa.com" />
+              <data android:scheme="https" />
             </intent-filter>
 
         </activity>

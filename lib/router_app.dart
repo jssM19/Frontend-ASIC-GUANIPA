@@ -51,14 +51,16 @@ final router = GoRouter(
   ],
   redirect: (context, state) {
     final String path = normalizeIncomingUri(state.uri);
-    final authProvider = Provider.of<AuthProvider>(context, listen: true);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     // Si aún está cargando, ir a pantalla de carga (excepto para rutas sin sesión)
-    if (authProvider.isLoading()) {
+    if (authProvider.isLoading() && path != "/reset-password") {
       return '/loading';
     }
 
-    if (!authProvider.isLoading() && path == "/loading") {
+    if (!authProvider.isLoading() &&
+        authProvider.hasSession() &&
+        path == "/loading") {
       return "/";
     }
 

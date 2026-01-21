@@ -19,10 +19,7 @@ class MenuDrawer extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        CircleAvatar(
-          radius: 30,
-          backgroundImage: NetworkImage('https://via.placeholder.com/150'),
-        ),
+        CircleAvatar(radius: 30),
         SizedBox(height: 10),
         Text(
           currentUser.username ?? "",
