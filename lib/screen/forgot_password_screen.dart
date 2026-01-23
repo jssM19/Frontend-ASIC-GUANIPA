@@ -42,7 +42,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(response['message']),
+        content: Text(
+          "Enlace de restablecimiento enviado a tu correo, por favor revisa tu bandeja de entrada. para que la app te abra el enlace. y permita cambiar la contraseña.",
+        ),
         backgroundColor: Colors.green,
       ),
     );

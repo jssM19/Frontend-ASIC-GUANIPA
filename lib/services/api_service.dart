@@ -14,8 +14,8 @@ class ApiService {
   };
 
   // Obtnener el token de JWT
-  Future<ProfileResponse> currentProfile() async {
-    final token = await getToken();
+  Future<ProfileResponse> currentProfile(String? token) async {
+    token = token ?? await getToken();
     http.Response response;
 
     try {
@@ -33,10 +33,6 @@ class ApiService {
         'data': null,
       });
     }
-
-    print(response.body);
-    print(response.statusCode);
-    print(token);
 
     if (response.statusCode == 401) {
       return ProfileResponse.fromJson({
@@ -153,8 +149,6 @@ class ApiService {
         'data': null,
       });
     }
-
-    print(response);
 
     if (response.statusCode == 401) {
       return LoginResponse.fromJson({
