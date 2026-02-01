@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 
+import 'package:asis_guanipa_frontend/screen/login_page.dart';
+import 'package:asis_guanipa_frontend/screen/home_screen.dart';
 import 'package:asis_guanipa_frontend/providers/auth_providers.dart';
 
 class MinimalLoadingScreen extends StatefulWidget {
-  const MinimalLoadingScreen({super.key});
+  final Widget child;
+  final bool hasSession;
+
+  const MinimalLoadingScreen({
+    super.key,
+    required this.child,
+    this.hasSession = true,
+  });
+
   @override
   State<MinimalLoadingScreen> createState() => _MinimalLoadingScreenState();
 }
@@ -24,21 +33,27 @@ class _MinimalLoadingScreenState extends State<MinimalLoadingScreen> {
   void _checkAuthentication() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     await authProvider.loadData();
-
-    if (!mounted) {
-      return;
-    }
-
-    if (authProvider.hasSession()) {
-      GoRouter.of(context).push("/");
-      return;
-    }
-
-    GoRouter.of(context).push("/signin");
   }
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: true);
+    if (authProvider.isLoading()) {
+      return loadingScreen(context);
+    }
+
+    if (!authProvider.hasSession() && widget.hasSession) {
+      return LoginPage();
+    }
+
+    if (authProvider.hasSession() && !widget.hasSession) {
+      return HomeScreen();
+    }
+
+    return widget.child;
+  }
+
+  Widget loadingScreen(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
