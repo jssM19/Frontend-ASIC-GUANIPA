@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:asis_guanipa_frontend/screen/home_screen.dart';
 import 'package:asis_guanipa_frontend/providers/auth_providers.dart';
-import 'package:flutter/material.dart';
 import "package:asis_guanipa_frontend/screen/loading_screen.dart";
 
 final Set<String> routesWithoutSignin = <String>{"/signin", "/reset-password"};
@@ -37,39 +36,34 @@ String normalizeIncomingUri(Uri u) {
 // OPCIÓN ALTERNATIVA: Usar un refresh listener para recargar el router
 final router = GoRouter(
   routes: [
-    GoRoute(path: "/", builder: (context, state) => const HomeScreen()),
-    GoRoute(path: "/signin", builder: (context, state) => const LoginPage()),
+    GoRoute(
+      path: "/",
+      builder: (context, state) =>
+          MinimalLoadingScreen(child: const HomeScreen()),
+    ),
+    GoRoute(
+      path: "/signin",
+      builder: (context, state) =>
+          MinimalLoadingScreen(hasSession: false, child: const LoginPage()),
+    ),
     GoRoute(
       path: "/reset-password",
-      builder: (context, state) => const ResetPasswordScreen(),
-    ),
-    // Agregar ruta de carga temporal
-    GoRoute(
-      path: "/loading",
-      builder: (context, state) => const MinimalLoadingScreen(),
+      builder: (context, state) => MinimalLoadingScreen(
+        hasSession: false,
+        child: const ResetPasswordScreen(),
+      ),
     ),
   ],
   redirect: (context, state) {
-    final String path = normalizeIncomingUri(state.uri);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final String path = state.uri.toString();
 
-    // Si aún está cargando, ir a pantalla de carga (excepto para rutas sin sesión)
-    if (authProvider.isLoading() && path != "/reset-password") {
-      return '/loading';
-    }
-
-    if (!authProvider.isLoading() &&
-        authProvider.hasSession() &&
-        path == "/loading") {
-      return "/";
+    if (!authProvider.hasSession() && !routesWithoutSignin.contains(path)) {
+      return '/signin';
     }
 
     if (authProvider.hasSession() && routesWithoutSignin.contains(path)) {
       return "/";
-    }
-
-    if (!authProvider.hasSession() && !routesWithoutSignin.contains(path)) {
-      return '/signin';
     }
 
     return null;
