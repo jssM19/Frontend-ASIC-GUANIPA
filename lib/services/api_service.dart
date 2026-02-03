@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:asis_guanipa_frontend/storage/jwt_token.dart';
 import 'package:http/http.dart' as http;
 import '../response/login_response.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../response/profile_response.dart';
 
 class ApiService {

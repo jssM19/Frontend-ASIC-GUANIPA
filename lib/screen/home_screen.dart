@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../components/menu_drawer.dart';
+import '../components/body_home.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -18,7 +19,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: Center(child: Text('Welcome to the Home Screen')),
+      body: BodyHome(),
     );
   }
 }
