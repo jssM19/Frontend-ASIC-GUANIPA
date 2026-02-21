@@ -10,7 +10,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       drawer: MenuDrawer(),
       appBar: AppBar(
-        title: Text('Home Screen', style: TextStyle(color: Colors.white)),
+        title: Text('Inicio', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blue,
         leading: Builder(
           builder: (context) => IconButton(

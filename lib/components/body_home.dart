@@ -1,5 +1,8 @@
+import 'package:asis_guanipa_frontend/screen/nominal_register/list_patients.dart';
 import 'package:flutter/material.dart';
 import '../screen/menu_item.dart';
+import 'package:asis_guanipa_frontend/screen/nominal_register/list_patients.dart';
+import 'package:go_router/go_router.dart';
 
 class BodyHome extends StatelessWidget {
   BodyHome({super.key});
@@ -13,7 +16,7 @@ class BodyHome extends StatelessWidget {
     MenuItem(
       title: 'Registro Nominal',
       iconPath: 'assets/icons/register.png',
-      route: '/registro-nominal',
+      route: '/list-patients',
     ),
     MenuItem(
       title: 'Almacén',
@@ -179,7 +182,7 @@ Widget _buildMenuItemCard(BuildContext context, MenuItem item) {
       onTap: () {
         // Navegar a la ruta correspondiente
         // Navigator.pushNamed(context, item.route);
-        _showComingSoon(context, item.title);
+        GoRouter.of(context).push(item.route);
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -269,19 +272,3 @@ Color _getColorForModule(String title) {
       return 'Módulo del sistema';
   }
 } */
-
-void _showComingSoon(BuildContext context, String module) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Próximamente'),
-      content: Text('El módulo "$module" estará disponible pronto.'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('OK'),
-        ),
-      ],
-    ),
-  );
-}

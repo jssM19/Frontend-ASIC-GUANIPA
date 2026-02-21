@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:asis_guanipa_frontend/screen/home_screen.dart';
 import 'package:asis_guanipa_frontend/providers/auth_providers.dart';
 import "package:asis_guanipa_frontend/screen/loading_screen.dart";
+import "package:asis_guanipa_frontend/screen/nominal_register/list_patients.dart";
 
 final Set<String> routesWithoutSignin = <String>{"/signin", "/reset-password"};
 
@@ -40,6 +41,11 @@ final router = GoRouter(
       path: "/",
       builder: (context, state) =>
           MinimalLoadingScreen(child: const HomeScreen()),
+    ),
+    GoRoute(
+      path: "/list-patients",
+      builder: (context, state) =>
+          MinimalLoadingScreen(child: const ListPatients()),
     ),
     GoRoute(
       path: "/signin",
