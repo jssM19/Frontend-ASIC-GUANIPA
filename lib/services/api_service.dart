@@ -3,6 +3,7 @@ import 'package:asis_guanipa_frontend/storage/jwt_token.dart';
 import 'package:http/http.dart' as http;
 import '../response/login_response.dart';
 import '../response/profile_response.dart';
+import '../models/paciente.dart';
 
 class ApiService {
   static const String baseUrl =
@@ -159,5 +160,47 @@ class ApiService {
 
     final Map<String, dynamic> responseData = json.decode(response.body);
     return LoginResponse.fromJson(responseData);
+  }
+
+  Future<PacienteResponse> getPacientes({
+    int page = 1,
+    String? cedula,
+    String? fecha,
+  }) async {
+    final token = await getToken();
+    if (token == null) {
+      return PacienteResponse.fromJson({'success': false, 'data': []});
+    }
+
+    try {
+      final queryParams = <String, String>{'page': page.toString()};
+      if (cedula != null && cedula.isNotEmpty) {
+        queryParams['cedula'] = cedula;
+      }
+      if (fecha != null && fecha.isNotEmpty) {
+        queryParams['fecha'] = fecha;
+      }
+
+      final uri = Uri.parse(
+        '$baseUrl/pacientes',
+      ).replace(queryParameters: queryParams);
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 401) {
+        return PacienteResponse.fromJson({'success': false, 'data': []});
+      }
+
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      return PacienteResponse.fromJson(responseData);
+    } catch (e) {
+      return PacienteResponse.fromJson({'success': false, 'data': []});
+    }
   }
 }
