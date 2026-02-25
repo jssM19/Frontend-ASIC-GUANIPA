@@ -173,7 +173,10 @@ class ApiService {
     }
 
     try {
-      final queryParams = <String, String>{'page': page.toString()};
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'limit': '6',
+      };
       if (cedula != null && cedula.isNotEmpty) {
         queryParams['cedula'] = cedula;
       }
@@ -182,7 +185,7 @@ class ApiService {
       }
 
       final uri = Uri.parse(
-        '$baseUrl/pacientes',
+        '$baseUrl/pacientes/listado',
       ).replace(queryParameters: queryParams);
 
       final response = await http.get(

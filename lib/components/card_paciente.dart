@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:asis_guanipa_frontend/models/paciente.dart';
 
 class CardPaciente extends StatelessWidget {
-  final PacienteData pacienteData;
+  final Paciente paciente;
 
-  const CardPaciente({super.key, required this.pacienteData});
+  const CardPaciente({super.key, required this.paciente});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class CardPaciente extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '${pacienteData.paciente.nombre} ${pacienteData.paciente.apellido}',
+                    '${paciente.nombre} ${paciente.apellido}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -32,30 +32,41 @@ class CardPaciente extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            _buildInfoRow(
-              Icons.badge,
-              'Cédula: ${pacienteData.paciente.cedula}',
-            ),
+            _buildInfoRow(Icons.badge, 'Cédula: ${paciente.cedula}'),
             const SizedBox(height: 8),
             _buildInfoRow(
               Icons.cake,
-              'Edad: ${pacienteData.edadAtencion} años',
+              'Fecha de nacimiento: ${_formatDate(paciente.fechaNacimiento)}',
             ),
             const SizedBox(height: 8),
             _buildInfoRow(
-              Icons.calendar_today,
-              'Fecha: ${_formatDate(pacienteData.fecha)}',
+              Icons.wc,
+              'Sexo: ${paciente.sexo == 'M'
+                  ? 'Masculino'
+                  : paciente.sexo == 'F'
+                  ? 'Femenino'
+                  : paciente.sexo}',
             ),
-            const SizedBox(height: 8),
-            _buildInfoRow(
-              Icons.medical_services,
-              'Diagnóstico: ${pacienteData.diagnostico}',
-            ),
-            const SizedBox(height: 8),
-            _buildInfoRow(
-              Icons.person_outline,
-              'Atendido por: ${pacienteData.usuario.username}',
-            ),
+            if (paciente.telefono != null && paciente.telefono!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              _buildInfoRow(Icons.phone, 'Teléfono: ${paciente.telefono}'),
+            ],
+            if (paciente.direccion != null &&
+                paciente.direccion!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              _buildInfoRow(
+                Icons.location_on,
+                'Dirección: ${paciente.direccion}',
+              ),
+            ],
+            if (paciente.nombreRepresentante != null &&
+                paciente.nombreRepresentante!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              _buildInfoRow(
+                Icons.person_outline,
+                'Representante: ${paciente.nombreRepresentante} ${paciente.apellidoRepresentante ?? ''}',
+              ),
+            ],
           ],
         ),
       ),

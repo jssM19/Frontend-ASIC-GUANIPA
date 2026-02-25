@@ -1,56 +1,17 @@
 class PacienteResponse {
   final bool success;
-  final List<PacienteData> data;
+  final List<Paciente> data;
+  final int total;
 
-  PacienteResponse({required this.success, required this.data});
+  PacienteResponse({required this.success, required this.data, this.total = 0});
 
   factory PacienteResponse.fromJson(Map<String, dynamic> json) {
     return PacienteResponse(
       success: json['success'] ?? false,
       data: json['data'] != null
-          ? (json['data'] as List).map((e) => PacienteData.fromJson(e)).toList()
+          ? (json['data'] as List).map((e) => Paciente.fromJson(e)).toList()
           : [],
-    );
-  }
-}
-
-class PacienteData {
-  final int id;
-  final int pacienteId;
-  final String diagnostico;
-  final String fecha;
-  final int edadAtencion;
-  final int idUsuarioRegistra;
-  final String? createdAt;
-  final String? updatedAt;
-  final Paciente paciente;
-  final Usuario usuario;
-
-  PacienteData({
-    required this.id,
-    required this.pacienteId,
-    required this.diagnostico,
-    required this.fecha,
-    required this.edadAtencion,
-    required this.idUsuarioRegistra,
-    this.createdAt,
-    this.updatedAt,
-    required this.paciente,
-    required this.usuario,
-  });
-
-  factory PacienteData.fromJson(Map<String, dynamic> json) {
-    return PacienteData(
-      id: json['id'] ?? 0,
-      pacienteId: json['paciente_id'] ?? 0,
-      diagnostico: json['diagnostico'] ?? '',
-      fecha: json['fecha'] ?? '',
-      edadAtencion: json['edad_atencion'] ?? 0,
-      idUsuarioRegistra: json['id_usuario_registra'] ?? 0,
-      createdAt: json['created_at'],
-      updatedAt: json['updated_at'],
-      paciente: Paciente.fromJson(json['paciente'] ?? {}),
-      usuario: Usuario.fromJson(json['usuario'] ?? {}),
+      total: json['total'] ?? 0,
     );
   }
 }

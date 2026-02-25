@@ -15,7 +15,7 @@ class _ListPatientsState extends State<ListPatients> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _cedulaController = TextEditingController();
 
-  List<PacienteData> _pacientes = [];
+  List<Paciente> _pacientes = [];
   int _currentPage = 1;
   bool _isLoading = false;
   bool _isLoadingMore = false;
@@ -365,7 +365,7 @@ class _ListPatientsState extends State<ListPatients> {
                   ),
                 );
               }
-              return CardPaciente(pacienteData: _pacientes[index]);
+              return CardPaciente(paciente: _pacientes[index]);
             },
           ),
         ),
