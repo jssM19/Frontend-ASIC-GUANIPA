@@ -44,8 +44,7 @@ final router = GoRouter(
     ),
     GoRoute(
       path: "/list-patients",
-      builder: (context, state) =>
-          MinimalLoadingScreen(child: const ListPatients()),
+      builder: (context, state) => const ListPatients(),
     ),
     GoRoute(
       path: "/signin",

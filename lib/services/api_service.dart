@@ -166,6 +166,7 @@ class ApiService {
     int page = 1,
     String? cedula,
     String? fecha,
+    String? search,
   }) async {
     final token = await getToken();
     if (token == null) {
@@ -182,6 +183,9 @@ class ApiService {
       }
       if (fecha != null && fecha.isNotEmpty) {
         queryParams['fecha'] = fecha;
+      }
+      if (search != null && search.isNotEmpty) {
+        queryParams['search'] = search;
       }
 
       final uri = Uri.parse(

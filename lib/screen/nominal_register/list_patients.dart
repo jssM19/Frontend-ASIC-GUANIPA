@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:asis_guanipa_frontend/models/paciente.dart';
 import 'package:asis_guanipa_frontend/services/api_service.dart';
 import 'package:asis_guanipa_frontend/components/card_paciente.dart';
@@ -13,7 +14,7 @@ class ListPatients extends StatefulWidget {
 class _ListPatientsState extends State<ListPatients> {
   final ApiService _apiService = ApiService();
   final ScrollController _scrollController = ScrollController();
-  final TextEditingController _cedulaController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   List<Paciente> _pacientes = [];
   int _currentPage = 1;
@@ -21,7 +22,6 @@ class _ListPatientsState extends State<ListPatients> {
   bool _isLoadingMore = false;
   bool _hasError = false;
   String? _errorMessage;
-  String? _selectedFecha;
   bool _hasMoreData = true;
 
   @override
@@ -32,9 +32,18 @@ class _ListPatientsState extends State<ListPatients> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final searchParam = GoRouterState.of(context).uri.queryParameters['search'];
+    if (searchParam != null && _searchController.text.isEmpty) {
+      _searchController.text = searchParam;
+    }
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
-    _cedulaController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -61,10 +70,9 @@ class _ListPatientsState extends State<ListPatients> {
     try {
       final response = await _apiService.getPacientes(
         page: _currentPage,
-        cedula: _cedulaController.text.isNotEmpty
-            ? _cedulaController.text
+        search: _searchController.text.isNotEmpty
+            ? _searchController.text
             : null,
-        fecha: _selectedFecha,
       );
 
       if (mounted) {
@@ -103,10 +111,9 @@ class _ListPatientsState extends State<ListPatients> {
       final nextPage = _currentPage + 1;
       final response = await _apiService.getPacientes(
         page: nextPage,
-        cedula: _cedulaController.text.isNotEmpty
-            ? _cedulaController.text
+        search: _searchController.text.isNotEmpty
+            ? _searchController.text
             : null,
-        fecha: _selectedFecha,
       );
 
       if (mounted) {
@@ -130,109 +137,14 @@ class _ListPatientsState extends State<ListPatients> {
     }
   }
 
-  void _showFilterDialog() {
-    final TextEditingController cedulaFilterController = TextEditingController(
-      text: _cedulaController.text,
-    );
-    String? selectedFecha = _selectedFecha;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: const Text('Filtros de Búsqueda'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextField(
-                      controller: cedulaFilterController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Cédula',
-                        hintText: 'Ingrese la cédula',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.badge),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            selectedFecha != null
-                                ? 'Fecha: ${_formatDate(selectedFecha!)}'
-                                : 'Sin fecha seleccionada',
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                        ),
-                        TextButton.icon(
-                          onPressed: () async {
-                            final DateTime? picked = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime.now(),
-                            );
-                            if (picked != null) {
-                              setDialogState(() {
-                                selectedFecha =
-                                    '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
-                              });
-                            }
-                          },
-                          icon: const Icon(Icons.calendar_today),
-                          label: const Text('Seleccionar'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    setDialogState(() {
-                      cedulaFilterController.clear();
-                      selectedFecha = null;
-                    });
-                  },
-                  child: const Text('Limpiar'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancelar'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    _cedulaController.text = cedulaFilterController.text;
-                    setState(() {
-                      _selectedFecha = selectedFecha;
-                    });
-                    _loadPacientes();
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Buscar'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  String _formatDate(String date) {
-    if (date.isEmpty) return '';
-    try {
-      final dateTime = DateTime.parse(date);
-      return '${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year}';
-    } catch (e) {
-      return date;
+  void _performSearch() {
+    final searchText = _searchController.text;
+    if (searchText.isNotEmpty) {
+      context.go('/list-patients?search=$searchText');
+    } else {
+      context.go('/list-patients');
     }
+    _loadPacientes();
   }
 
   @override
@@ -268,119 +180,101 @@ class _ListPatientsState extends State<ListPatients> {
         ],
       ),
       body: _buildBody(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showFilterDialog,
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.search, color: Colors.white),
-      ),
     );
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_hasError) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              _errorMessage ?? 'Error desconocido',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadPacientes,
-              child: const Text('Reintentar'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (_pacientes.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.person_off, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            const Text(
-              'No se encontraron pacientes',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _showFilterDialog,
-              child: const Text('Aplicar filtros'),
-            ),
-          ],
-        ),
-      );
-    }
-
     return Column(
       children: [
-        if (_cedulaController.text.isNotEmpty || _selectedFecha != null)
-          Container(
-            padding: const EdgeInsets.all(8),
-            color: Colors.blue[50],
-            child: Row(
-              children: [
-                const Icon(Icons.filter_alt, size: 18, color: Colors.blue),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    _buildFilterText(),
-                    style: const TextStyle(color: Colors.blue),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    _cedulaController.clear();
-                    setState(() {
-                      _selectedFecha = null;
-                    });
-                    _loadPacientes();
-                  },
-                  child: const Text('Limpiar'),
-                ),
-              ],
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Buscar por nombre, apellido o cédula',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchController.clear();
+                        context.go('/list-patients');
+                        _loadPacientes();
+                      },
+                    )
+                  : null,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
             ),
+            onSubmitted: (_) => _performSearch(),
           ),
+        ),
         Expanded(
-          child: ListView.builder(
-            controller: _scrollController,
-            itemCount: _pacientes.length + (_isLoadingMore ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index == _pacientes.length) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: CircularProgressIndicator(),
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _hasError
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _errorMessage ?? 'Error desconocido',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _loadPacientes,
+                        child: const Text('Reintentar'),
+                      ),
+                    ],
                   ),
-                );
-              }
-              return CardPaciente(paciente: _pacientes[index]);
-            },
-          ),
+                )
+              : _pacientes.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.person_off,
+                        size: 64,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'No se encontraron pacientes',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  controller: _scrollController,
+                  itemCount: _pacientes.length + (_isLoadingMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == _pacientes.length) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+                    return CardPaciente(paciente: _pacientes[index]);
+                  },
+                ),
         ),
       ],
     );
-  }
-
-  String _buildFilterText() {
-    final filters = <String>[];
-    if (_cedulaController.text.isNotEmpty) {
-      filters.add('Cédula: ${_cedulaController.text}');
-    }
-    if (_selectedFecha != null) {
-      filters.add('Fecha: ${_formatDate(_selectedFecha!)}');
-    }
-    return filters.join(' | ');
   }
 }
