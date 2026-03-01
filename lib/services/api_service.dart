@@ -210,4 +210,59 @@ class ApiService {
       return PacienteResponse.fromJson({'success': false, 'data': []});
     }
   }
+
+  Future<Map<String, dynamic>> crearPaciente({
+    required String nombre,
+    required String apellido,
+    required String cedula,
+    required String fechaNacimiento,
+    required String sexo,
+    String? telefono,
+    String? direccion,
+  }) async {
+    final token = await getToken();
+    if (token == null) {
+      return {
+        'success': false,
+        'message': 'No se encontró el token de autenticación',
+      };
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/pacientes'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode({
+          'nombre': nombre,
+          'apellido': apellido,
+          'cedula': cedula,
+          'fecha_nacimiento': fechaNacimiento,
+          'sexo': sexo,
+          'telefono': telefono,
+          'direccion': direccion,
+        }),
+      );
+
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return {
+          'success': true,
+          'message':
+              responseData['message'] ?? 'Paciente registrado exitosamente',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': responseData['message'] ?? 'Error al registrar paciente',
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Error de conexión: $e'};
+    }
+  }
 }

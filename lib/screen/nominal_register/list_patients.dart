@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:asis_guanipa_frontend/models/paciente.dart';
 import 'package:asis_guanipa_frontend/services/api_service.dart';
 import 'package:asis_guanipa_frontend/components/card_paciente.dart';
+import 'package:asis_guanipa_frontend/screen/nominal_register/create_patient_dialog.dart';
 
 class ListPatients extends StatefulWidget {
   const ListPatients({super.key});
@@ -180,6 +181,11 @@ class _ListPatientsState extends State<ListPatients> {
         ],
       ),
       body: _buildBody(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showCreatePatientDialog(context),
+        backgroundColor: Colors.blue,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
     );
   }
 
@@ -275,6 +281,17 @@ class _ListPatientsState extends State<ListPatients> {
                 ),
         ),
       ],
+    );
+  }
+
+  void _showCreatePatientDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => CreatePatientDialog(
+        onPatientCreated: () {
+          _loadPacientes();
+        },
+      ),
     );
   }
 }
